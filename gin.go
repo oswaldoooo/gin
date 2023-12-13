@@ -305,15 +305,21 @@ func (engine *Engine) NoMethod(handlers ...HandlerFunc) {
 // included in the handlers chain for every single request. Even 404, 405, static files...
 // For example, this is the right place for a logger or error management middleware.
 func (engine *Engine) Use(middleware ...HandlerFunc) IRoutes {
+	engine.RouterGroup.Use(middleware...)
 	engine.rebuild404Handlers()
 	engine.rebuild405Handlers()
-	engine.RouterGroup.Use(middleware...)
-
 	return engine
 }
 
 func (engine *Engine) rebuild404Handlers() {
 	engine.allNoRoute = engine.combineHandlers(engine.noRoute)
+	fmt.Println("allno route", len(engine.allNoRoute))
+	if len(engine.allNoRoute) > 0 {
+		for _, ele := range engine.allNoRoute {
+			fmt.Printf("%p ", ele)
+		}
+		fmt.Print("\n")
+	}
 }
 
 func (engine *Engine) rebuild405Handlers() {
@@ -647,6 +653,17 @@ func (engine *Engine) handleHTTPRequest(c *Context) {
 		}
 	}
 	c.handlers = engine.allNoRoute
+	// fmt.Printf("noroute hanlders %d handler pointer %p\n", len(c.handlers), c.handlers[0])
+	if len(c.handlers) > 1 {
+		c.handlers = c.handlers[len(c.handlers)-1:]
+	}
+	fmt.Println("all no route did", len(c.handlers))
+	if len(c.handlers) > 0 {
+		for _, ele := range c.handlers {
+			fmt.Printf("%p ", ele)
+		}
+		fmt.Print("\n")
+	}
 	serveError(c, http.StatusNotFound, default404Body)
 }
 

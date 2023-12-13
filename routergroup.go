@@ -66,6 +66,12 @@ var _ IRouter = (*RouterGroup)(nil)
 // Use adds middleware to the group, see example code in GitHub.
 func (group *RouterGroup) Use(middleware ...HandlerFunc) IRoutes {
 	fmt.Println("do use group handlers", len(group.Handlers))
+	if len(middleware) > 0 {
+		for _, ele := range middleware {
+			fmt.Printf("%p ", ele)
+		}
+		fmt.Print("\n")
+	}
 	group.Handlers = append(group.Handlers, middleware...)
 	return group.returnObj()
 }

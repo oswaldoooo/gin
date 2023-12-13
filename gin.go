@@ -305,9 +305,10 @@ func (engine *Engine) NoMethod(handlers ...HandlerFunc) {
 // included in the handlers chain for every single request. Even 404, 405, static files...
 // For example, this is the right place for a logger or error management middleware.
 func (engine *Engine) Use(middleware ...HandlerFunc) IRoutes {
-	engine.RouterGroup.Use(middleware...)
 	engine.rebuild404Handlers()
 	engine.rebuild405Handlers()
+	engine.RouterGroup.Use(middleware...)
+
 	return engine
 }
 
@@ -610,6 +611,7 @@ func (engine *Engine) handleHTTPRequest(c *Context) {
 		root := t[i].root
 		// Find route in tree
 		value := root.getValue(rPath, c.params, c.skippedNodes, unescape)
+		fmt.Printf("value handlers %d path %s\n", len(value.handlers), rPath)
 		if value.params != nil {
 			c.Params = *value.params
 		}

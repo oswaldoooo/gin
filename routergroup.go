@@ -5,9 +5,11 @@
 package gin
 
 import (
+	"fmt"
 	"net/http"
 	"path"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -63,6 +65,7 @@ var _ IRouter = (*RouterGroup)(nil)
 
 // Use adds middleware to the group, see example code in GitHub.
 func (group *RouterGroup) Use(middleware ...HandlerFunc) IRoutes {
+	fmt.Println("do use group handlers", len(group.Handlers))
 	group.Handlers = append(group.Handlers, middleware...)
 	return group.returnObj()
 }
@@ -239,6 +242,10 @@ func (group *RouterGroup) createStaticHandler(relativePath string, fs http.FileS
 }
 
 func (group *RouterGroup) combineHandlers(handlers HandlersChain) HandlersChain {
+	//debug point
+	_, fun, line, _ := runtime.Caller(1)
+	_, fun2, line2, _ := runtime.Caller(2)
+	fmt.Printf("call from %s:%d %s:%d;current handlers %d combine handler %d\n", fun, line, fun2, line2, len(group.Handlers), len(handlers))
 	finalSize := len(group.Handlers) + len(handlers)
 	assert1(finalSize < int(abortIndex), "too many handlers")
 	mergedHandlers := make(HandlersChain, finalSize)
